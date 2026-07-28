@@ -6,7 +6,8 @@ export const protect = (req: Request, res: Response, next: NextFunction): void =
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret123');
+            if (!token) throw new Error("No token");
+            const decoded = jwt.verify(token, (process.env.JWT_SECRET as string) || 'secret123');
             (req as any).user = decoded;
             next();
         } catch (error) {
