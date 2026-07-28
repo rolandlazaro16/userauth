@@ -47,7 +47,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
         res.status(201).json({ message: "User registered successfully." });
     } catch (error) {
-        res.status(500).json({ message: "Server error", error });
+        res.status(500).json({ message: (error as Error).message || "Server error" });
     }
 };
 
@@ -93,7 +93,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: "Server error", error });
+        res.status(500).json({ message: (error as Error).message || "Server error" });
     }
 };
 
@@ -106,6 +106,6 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
         }
         res.json(user);
     } catch (error) {
-        res.status(500).json({ message: "Server error", error });
+        res.status(500).json({ message: (error as Error).message || "Server error" });
     }
 };
