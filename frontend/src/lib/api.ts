@@ -1,4 +1,10 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://userauth-podn.onrender.com/api';
+const getApiUrl = () => {
+    const raw = import.meta.env.VITE_API_URL || 'https://userauth-podn.onrender.com/api';
+    const clean = raw.trim().replace(/\/+$/, '');
+    return clean.endsWith('/api') ? clean : `${clean}/api`;
+};
+
+const API_URL = getApiUrl();
 
 export const api = {
     async register(data: any) {
