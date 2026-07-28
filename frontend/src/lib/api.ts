@@ -1,4 +1,4 @@
-const API_URL = 'https://userauth-588g.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://userauth-588g.onrender.com/api';
 
 export const api = {
     async register(data: any) {
