@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import User from '../models/User';
 import validator from 'validator';
+import cloudinary from '../config/cloudinary';
 
 const registerSchema = z.object({
     username: z.string().min(3),
@@ -107,5 +108,31 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
         res.json(user);
     } catch (error) {
         res.status(500).json({ message: (error as Error).message || "Server error" });
+    }
+};
+
+export const uploadAvatar = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { image } = req.body;
+        if (!image) {
+            res.status(400).json({ message: "No image data provided" });
+            return;
+        }
+
+        const uploadResponse = await cloudinary.uploader.upload(image, {
+            folder: 'userauth_avatars',
+            transformation: [{ width: 300, height: 300, crop: 'fill' }]
+        });
+
+        const userId = (req as any).user.id;
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { avatarUrl: uploadResponse.secure_url },
+            { new: true }
+        ).select('-passwordHash');
+
+        res.json({ message: "Avatar updated successfully", user: updatedUser, avatarUrl: uploadResponse.secure_url });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message || "Avatar upload failed" });
     }
 };

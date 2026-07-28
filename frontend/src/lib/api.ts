@@ -42,5 +42,21 @@ export const api = {
             throw new Error(error.message || 'Failed to fetch profile');
         }
         return response.json();
+    },
+
+    async uploadAvatar(token: string, image: string) {
+        const response = await fetch(`${API_URL}/auth/avatar`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ image })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Avatar upload failed');
+        }
+        return response.json();
     }
 };

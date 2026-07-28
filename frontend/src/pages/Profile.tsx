@@ -9,6 +9,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -21,8 +22,12 @@ export default function Profile() {
       try {
         const data = await api.getProfile(token);
         setProfile(data);
-        const name = encodeURIComponent(data?.username || 'User');
-        setAvatarUrl(`https://ui-avatars.com/api/?name=${name}&background=3b82f6&color=fff&size=150&bold=true&rounded=true`);
+        if (data?.avatarUrl) {
+          setAvatarUrl(data.avatarUrl);
+        } else {
+          const name = encodeURIComponent(data?.username || 'User');
+          setAvatarUrl(`https://ui-avatars.com/api/?name=${name}&background=3b82f6&color=fff&size=150&bold=true&rounded=true`);
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to fetch profile.');
         localStorage.removeItem('token');
@@ -43,10 +48,23 @@ export default function Profile() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         if (reader.result) {
-          setAvatarUrl(reader.result as string);
+          try {
+            setIsUploading(true);
+            setError('');
+            const base64Image = reader.result as string;
+            const res = await api.uploadAvatar(token, base64Image);
+            setAvatarUrl(res.avatarUrl);
+          } catch (err: any) {
+            setError(err.message || 'Failed to upload avatar to Cloudinary');
+          } finally {
+            setIsUploading(false);
+          }
         }
       };
       reader.readAsDataURL(file);
@@ -96,24 +114,25 @@ export default function Profile() {
                 position: 'absolute',
                 bottom: '0',
                 right: '0',
-                backgroundColor: 'var(--accent-color)',
+                backgroundColor: isUploading ? 'var(--text-secondary)' : 'var(--accent-color)',
                 color: '#fff',
                 borderRadius: '50%',
                 padding: '0.4rem',
-                cursor: 'pointer',
+                cursor: isUploading ? 'not-allowed' : 'pointer',
                 boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'transform 0.2s'
               }}
-              title="Change Profile Picture"
+              title={isUploading ? "Uploading to Cloudinary..." : "Change Profile Picture"}
             >
               <Camera size={16} />
               <input 
                 id="avatar-input" 
                 type="file" 
                 accept="image/*" 
+                disabled={isUploading}
                 onChange={handleAvatarChange} 
                 style={{ display: 'none' }}
               />
