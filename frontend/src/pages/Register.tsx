@@ -7,7 +7,7 @@ import { api } from '../lib/api';
 const registerSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().refine((val) => validator.isMobilePhone(val), { message: "Invalid phone number format" }),
+  phone: z.string().refine((val: string) => validator.isMobilePhone(val), { message: "Invalid phone number format" }),
   password: z.string()
     .min(8, "Password must be at least 8 characters")
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
@@ -15,7 +15,7 @@ const registerSchema = z.object({
     .regex(/[0-9]/, "Password must contain at least one number")
     .regex(/[\W_]/, "Password must contain at least one symbol"),
   confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
+}).refine((data: any) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"]
 });
@@ -63,7 +63,7 @@ export default function Register() {
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
-        err.errors.forEach((error) => {
+        (err as any).errors.forEach((error: any) => {
           if (error.path[0]) {
             fieldErrors[error.path[0].toString()] = error.message;
           }
