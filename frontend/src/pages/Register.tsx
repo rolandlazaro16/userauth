@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { z } from 'zod';
 import validator from 'validator';
+import { Eye, EyeOff } from 'lucide-react';
 import { api } from '../lib/api';
 
 const registerSchema = z.object({
@@ -32,6 +33,8 @@ export default function Register() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -125,27 +128,71 @@ export default function Register() {
 
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input 
-              className="form-input" 
-              name="password" 
-              type="password" 
-              value={formData.password} 
-              onChange={handleChange} 
-              placeholder="••••••••" 
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                className="form-input" 
+                name="password" 
+                type={showPassword ? "text" : "password"} 
+                value={formData.password} 
+                onChange={handleChange} 
+                placeholder="••••••••" 
+                style={{ paddingRight: '2.5rem' }}
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: 0
+                }}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
             {errors.password && <span className="error-text">{errors.password}</span>}
           </div>
 
           <div className="form-group">
             <label className="form-label">Confirm Password</label>
-            <input 
-              className="form-input" 
-              name="confirmPassword" 
-              type="password" 
-              value={formData.confirmPassword} 
-              onChange={handleChange} 
-              placeholder="••••••••" 
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                className="form-input" 
+                name="confirmPassword" 
+                type={showConfirmPassword ? "text" : "password"} 
+                value={formData.confirmPassword} 
+                onChange={handleChange} 
+                placeholder="••••••••" 
+                style={{ paddingRight: '2.5rem' }}
+              />
+              <button 
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: 0
+                }}
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
             {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
           </div>
 
